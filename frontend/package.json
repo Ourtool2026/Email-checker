@@ -1,0 +1,27 @@
+{
+  "name": "mystay-hq",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MyStay ID HQ: internal admin dashboard (frontend only, sample data).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "next": "16.4.5",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "react-icons": "5.7.0",
+    "tailwind-merge": "3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.4",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.5",
+    "tailwindcss": "4.3.4"
+  }
+}
