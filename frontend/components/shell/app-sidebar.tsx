@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { useAccess } from "@/components/shell/access-context"
 import { BrandTile } from "@/components/shell/brand-mark"
 import { navGroups, pageById } from "@/components/shell/nav"
 import { Avatar } from "@/components/hq/avatar"
@@ -168,6 +169,11 @@ export function AppSidebar({
       ?.scrollIntoView({ block: "nearest" })
   }, [route, collapsed])
 
+  // Only pages the person on screen can open (yours, or theirs during View as).
+  const access = useAccess()
+  const canOpen = (id: string) => !access || access.levelFor(id) !== "none"
+  const visibleFav = (ui.fav as string[]).filter(canOpen)
+
   const groupOpen = (label: string) => collapsed || !ui.shut.includes(label)
   const toggleGroup = (label: string, open: boolean) =>
     set({
@@ -262,12 +268,12 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {ui.fav.length > 0 && (
+        {visibleFav.length > 0 && (
           <SidebarGroup className="py-1 group-data-[collapsible=icon]:mt-1 group-data-[collapsible=icon]:border-t group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pt-1.5">
             <SidebarGroupLabel className={LABEL}>Favorites</SidebarGroupLabel>
             <SidebarGroupContent>
               <NavMenu
-                ids={ui.fav}
+                ids={visibleFav}
                 route={route}
                 badges={ui.badges !== false}
               />
@@ -275,38 +281,47 @@ export function AppSidebar({
           </SidebarGroup>
         )}
 
-        {navGroups.map(([label, entries]) => (
-          <Collapsible
-            key={label}
-            open={groupOpen(label)}
-            onOpenChange={(open) => toggleGroup(label, open)}
-            className="group/collapsible"
-          >
-            <SidebarGroup className="py-1 group-data-[collapsible=icon]:mt-1 group-data-[collapsible=icon]:border-t group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pt-1.5">
-              <SidebarGroupLabel
-                asChild
-                className={cn(
-                  LABEL,
-                  "cursor-pointer hover:text-sidebar-foreground"
-                )}
-              >
-                <CollapsibleTrigger>
-                  {label}
-                  <ChevronDownIcon className="ml-auto size-3.5 transition-transform group-data-[state=closed]/collapsible:-rotate-90" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <NavMenu
-                    ids={(entries as NavEntry[]).map((e) => e[0])}
-                    route={route}
-                    badges={ui.badges !== false}
-                  />
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-        ))}
+        {navGroups
+          .map(
+            ([label, entries]) =>
+              [
+                label,
+                (entries as NavEntry[]).map((e) => e[0]).filter(canOpen),
+              ] as const
+          )
+          .filter(([, ids]) => ids.length > 0)
+          .map(([label, ids]) => (
+            <Collapsible
+              key={label}
+              open={groupOpen(label)}
+              onOpenChange={(open) => toggleGroup(label, open)}
+              className="group/collapsible"
+            >
+              <SidebarGroup className="py-1 group-data-[collapsible=icon]:mt-1 group-data-[collapsible=icon]:border-t group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pt-1.5">
+                <SidebarGroupLabel
+                  asChild
+                  className={cn(
+                    LABEL,
+                    "cursor-pointer hover:text-sidebar-foreground"
+                  )}
+                >
+                  <CollapsibleTrigger>
+                    {label}
+                    <ChevronDownIcon className="ml-auto size-3.5 transition-transform group-data-[state=closed]/collapsible:-rotate-90" />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <NavMenu
+                      ids={ids}
+                      route={route}
+                      badges={ui.badges !== false}
+                    />
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          ))}
       </SidebarContent>
 
       <SidebarFooter className="gap-1 border-t border-sidebar-border px-3 pt-2 pb-3 group-data-[collapsible=icon]:px-2.5">

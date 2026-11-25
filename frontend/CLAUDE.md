@@ -29,6 +29,20 @@ fonts via `@fontsource-variable/*` (Inter, Rubik, Geist Mono).
 - Data: `lib/data/*.ts` are mutable arrays; change them, then call `refresh()` (`lib/store.ts`).
   Log admin actions with `logAudit(action, target, reason)`.
 
+## Access (departments, roles, View as)
+
+- Model: `lib/access.ts` (types, `accessFor`, `explainPage`, `canViewAs`); data: `lib/data/access.ts`
+  (departments and the pages they own, base and custom roles with named rights, admins, groups,
+  overrides with end dates). Plan: the "HQ admin access plan" doc.
+- `components/shell/access-context.tsx`: `useAccess()` (the signed-in admin, the person previewed,
+  `levelFor(page)`, `can(right)`), `PageLevel` (wraps each page and the user/hostel drawers) and
+  `useActionGate`. The sidebar, ⌘K and the Create menu hide pages at None; `HQPage` shows `NoAccess`.
+- Page actions must go through `hq/Button`, `hq/Switch` or `hq/gate`'s `ActionButton`: they lock
+  on View pages, lock when a named right is missing, and only show a notice during View as (a
+  preview never changes data). Pass `right="…"` when the label doesn't say which right it needs;
+  read-only labels (Export, Copy, Open, View…) stay usable (`SAFE` in access-context).
+- The browser only shapes the screen; a backend must enforce the same rules on every route.
+
 ## Rules
 
 - **Tokens only.** No hex colours in components; semantic classes (`bg-card`, `bg-surface`,

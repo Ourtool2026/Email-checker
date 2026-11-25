@@ -17,10 +17,14 @@ import {
   SearchIcon,
   SirenIcon,
   SunIcon,
+  EyeOffIcon,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
+import { useAccess } from "@/components/shell/access-context"
 import { pages } from "@/components/shell/nav"
+import { admins } from "@/lib/data/access"
+import { canViewAs, describeAdmin } from "@/lib/access"
 import { Avatar } from "@/components/hq/avatar"
 import { Kbd } from "@/components/ui/kbd"
 import { cases, hostels, users } from "@/lib/data/core"
@@ -57,7 +61,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
   )
 }
 
-const GROUPS = ["Actions", "Pages", "Users", "Hostels", "Cases"]
+const GROUPS = ["Actions", "Pages", "View as", "Users", "Hostels", "Cases"]
 
 export function CommandMenu({
   open,
@@ -79,6 +83,9 @@ export function CommandMenu({
   const inputRef = React.useRef<HTMLInputElement>(null)
   const dark = resolvedTheme === "dark"
   const q = query.trim().toLowerCase()
+
+  const access = useAccess()
+  const canOpen = (id: string) => !access || access.levelFor(id) !== "none"
 
   const entries: Entry[] = React.useMemo(() => {
     const actions: Entry[] = [
@@ -134,16 +141,43 @@ export function CommandMenu({
         run: () => set({ custom: true }),
       },
     ]
-    const pageEntries: Entry[] = pages.map((p) => ({
-      id: `page-${p.id}`,
-      label: p.title,
-      hint: p.group,
-      group: "Pages",
-      icon: p.icon,
-      run: () => nav.go(p.id),
-    }))
-    return [...actions, ...pageEntries]
-  }, [dark, nav, set, setTheme])
+    const pageEntries: Entry[] = pages
+      .filter((p) => canOpen(p.id))
+      .map((p) => ({
+        id: `page-${p.id}`,
+        label: p.title,
+        hint: p.group,
+        group: "Pages",
+        icon: p.icon,
+        run: () => nav.go(p.id),
+      }))
+    // Preview another admin's access (Owner and Admins; leads for their own departments).
+    const viewAs: Entry[] = access
+      ? access.viewing
+        ? [
+            {
+              id: "exit-view-as",
+              label: `Exit View as ${access.viewing.name}`,
+              group: "View as",
+              icon: EyeOffIcon,
+              run: access.exitViewAs,
+            },
+          ]
+        : admins
+            .filter((a) => canViewAs(access.me, a))
+            .map((a) => ({
+              id: `view-as-${a.id}`,
+              label: `View as ${a.name}`,
+              hint: describeAdmin(a),
+              group: "View as",
+              avatar: a,
+              keywords: ["view as", "preview", "access", "permissions"],
+              run: () => access.startViewAs(a.id),
+            }))
+      : []
+    return [...actions, ...pageEntries, ...viewAs]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dark, nav, set, setTheme, access?.subject.id, access?.viewing])
 
   // Records are many, so they're matched here instead of all being listed.
   const records: Entry[] = React.useMemo(() => {
@@ -151,6 +185,7 @@ export function CommandMenu({
     const compact = q.replace(/\s/g, "")
     return [
       ...users
+        .filter(() => canOpen("users"))
         .filter((u) =>
           (u.name + u.lid).toLowerCase().replace(/\s/g, "").includes(compact)
         )
@@ -164,6 +199,7 @@ export function CommandMenu({
           run: () => nav.user(u.id),
         })),
       ...hostels
+        .filter(() => canOpen("hostels"))
         .filter((h) => (h.name + h.area).toLowerCase().includes(q))
         .slice(0, 4)
         .map((h) => ({
@@ -175,6 +211,7 @@ export function CommandMenu({
           run: () => nav.hostel(h.id),
         })),
       ...cases
+        .filter(() => canOpen("cases"))
         .filter((c) => (c.id + c.title).toLowerCase().includes(q))
         .slice(0, 3)
         .map((c) => ({

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ActionButton } from "@/components/hq/gate"
 import {
   AppleIcon,
   CheckIcon,
@@ -369,7 +370,7 @@ export function AppControlPage() {
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {o.areas.map((n) => (
-                  <button
+                  <ActionButton right="app_control"
                     onClick={() => {
                       n[1] = !n[1]
                       if (n[1]) {
@@ -393,7 +394,7 @@ export function AppControlPage() {
                   >
                     {n[1] && <CheckIcon className="size-3" />}
                     {n[0]}
-                  </button>
+                  </ActionButton>
                 ))}
               </div>
             </div>

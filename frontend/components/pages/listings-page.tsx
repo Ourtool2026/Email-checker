@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ActionButton } from "@/components/hq/gate"
 import {
   CheckIcon,
   CircleCheckIcon,
@@ -113,7 +114,7 @@ export function ListingsPage({ nav }: { nav?: any }) {
                 <p className="text-[13px]">{n.change}</p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {i.map(([s, m, f]) => (
-                    <button
+                    <ActionButton right="approve_listing"
                       onClick={() => {
                         n.checks[s] = !n.checks[s]
                         refresh()
@@ -132,7 +133,7 @@ export function ListingsPage({ nav }: { nav?: any }) {
                         <TriangleAlertIcon className="size-3.5 shrink-0" />
                       )}
                       {m}
-                    </button>
+                    </ActionButton>
                   ))}
                 </div>
                 {u.length > 0 && (

@@ -16,6 +16,7 @@ import {
   ToggleRightIcon,
 } from "lucide-react"
 
+import { useAccess } from "@/components/shell/access-context"
 import { pageById } from "@/components/shell/nav"
 import { Tabs } from "@/components/hq/tabs"
 import { Button } from "@/components/ui/button"
@@ -23,7 +24,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Kbd } from "@/components/ui/kbd"
@@ -63,6 +63,14 @@ function IconButton({
   )
 }
 
+const CREATE = [
+  { page: "cases", label: "New case", icon: BriefcaseIcon },
+  { page: "campaigns", label: "New campaign", icon: MegaphoneIcon },
+  { page: "law", label: "Log police request", icon: ScaleIcon },
+  { page: "appcontrol", label: "Feature switch", icon: ToggleRightIcon },
+  { page: "status", label: "Declare incident", icon: SirenIcon, danger: true },
+]
+
 /** Top bar: sidebar toggle, breadcrumb with favourite star, ⌘K search, create menu, customize, notifications. */
 export function SiteHeader({
   route,
@@ -81,6 +89,10 @@ export function SiteHeader({
   setRange: (range: string) => void
   onOpenCommand: () => void
 }) {
+  const access = useAccess()
+  // The Create menu offers only what the person on screen can edit.
+  const canEdit = (id: string) =>
+    !access || ["edit", "manage"].includes(access.levelFor(id))
   const page = pageById[route]
   const unread = notifications.filter((n) => n.unread).length
   const favorite = ui.fav.includes(route)
@@ -187,25 +199,20 @@ export function SiteHeader({
             <TooltipContent>Create</TooltipContent>
           </Tooltip>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onSelect={() => nav.go("cases")}>
-              <BriefcaseIcon /> New case
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => nav.go("campaigns")}>
-              <MegaphoneIcon /> New campaign
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => nav.go("law")}>
-              <ScaleIcon /> Log police request
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => nav.go("appcontrol")}>
-              <ToggleRightIcon /> Feature switch
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() => nav.go("status")}
-            >
-              <SirenIcon /> Declare incident
-            </DropdownMenuItem>
+            {CREATE.filter((item) => canEdit(item.page)).map((item) => (
+              <DropdownMenuItem
+                key={item.page}
+                variant={item.danger ? "destructive" : "default"}
+                onSelect={() => nav.go(item.page)}
+              >
+                <item.icon /> {item.label}
+              </DropdownMenuItem>
+            ))}
+            {!CREATE.some((item) => canEdit(item.page)) && (
+              <DropdownMenuItem disabled>
+                Nothing to create with this access
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         <IconButton label="Customize HQ" onClick={() => set({ custom: true })}>

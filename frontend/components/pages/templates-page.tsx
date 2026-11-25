@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ActionButton } from "@/components/hq/gate"
 import {
   BellIcon,
   MailIcon,
@@ -143,14 +144,14 @@ export function TemplatesPage() {
                   Variables:
                 </span>
                 {i.vars.map((u) => (
-                  <button
+                  <ActionButton
                     onClick={() => {
                       i.body += ` {${u}}`
                       refresh()
                     }}
                     className="rounded-md bg-primary/[0.08] px-1.5 py-0.5 font-mono text-[12px] text-primary hover:bg-primary/15"
                     key={u}
-                  >{`{${u}}`}</button>
+                  >{`{${u}}`}</ActionButton>
                 ))}
               </div>
               <div className="flex gap-2">

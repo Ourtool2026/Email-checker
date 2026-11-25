@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ActionButton } from "@/components/hq/gate"
 import { EyeIcon } from "lucide-react"
 import { openTicketDialog } from "@/components/shared/ticket-dialog"
 import { Tooltip } from "@/components/hq/tooltip"
@@ -26,7 +27,7 @@ export function MaskedValue({
         •••• ••• •••
       </span>
       <Tooltip label="Show, with a reason">
-        <button
+        <ActionButton right="reveal_details"
           className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[12px] font-medium text-primary hover:bg-primary/10"
           onClick={() =>
             openTicketDialog({
@@ -38,7 +39,7 @@ export function MaskedValue({
         >
           <EyeIcon className="size-3.5" />
           Show
-        </button>
+        </ActionButton>
       </Tooltip>
     </span>
   )

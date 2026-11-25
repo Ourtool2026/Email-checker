@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { ActionButton } from "@/components/hq/gate"
 import {
   BanIcon,
   BriefcaseIcon,
@@ -816,7 +817,7 @@ function UserNotes({ u }: { u?: any }) {
             {i}
           </Tag>
         ))}
-        <button
+        <ActionButton
           className="text-[12.5px] font-medium text-primary"
           onClick={() => {
             r.tags.push("Watch")
@@ -824,7 +825,7 @@ function UserNotes({ u }: { u?: any }) {
           }}
         >
           + Watch
-        </button>
+        </ActionButton>
       </div>
       {r.list.length ? (
         r.list.map(([i, o, n], l) => (

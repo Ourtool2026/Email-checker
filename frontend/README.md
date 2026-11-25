@@ -85,8 +85,17 @@ components/shell/           AppSidebar, SiteHeader, CommandMenu (⌘K), Customiz
 components/pages/           one component per HQ page
 components/drawers/ teams/ org/ shared/ charts.tsx
 lib/data/                   sample data; lib/store.ts refresh() re-renders after a change
+lib/access.ts               who can open which page and do what (departments, roles, rights, View as)
 lib/lab.ts                  optional cross-tab "test lab" bus shared with the MyStay ID app prototype
 ```
+
+## Admin access and View as
+
+Admin team → **People** lists everyone with their departments, role and how many pages they reach;
+**Departments** and **Roles & rights** show the structure. **View as** (on a person's row, or ⌘K
+"View as …") shows HQ exactly as that person sees it: their sidebar, No access on pages they can't
+open, locked buttons with the reason, and a "Why can … see this?" panel. It is a preview: nothing
+changes while viewing, and starting and ending it is written to the Audit log.
 
 ## Keyboard
 

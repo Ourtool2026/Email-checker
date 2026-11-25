@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ActionButton } from "@/components/hq/gate"
 import {
   ArrowRightIcon,
   CircleCheckIcon,
@@ -145,7 +146,7 @@ export function TaskDrawer({
             {t.sub.filter((d) => d[1]).length}/{t.sub.length}
           </span>
           {t.sub.map((d, u) => (
-            <button
+            <ActionButton
               onClick={() => {
                 d[1] = !d[1]
                 refresh()
@@ -163,7 +164,7 @@ export function TaskDrawer({
               >
                 {d[0]}
               </span>
-            </button>
+            </ActionButton>
           ))}
           <form
             className="flex gap-2"
